@@ -14,6 +14,7 @@ from jinja2 import Environment, FileSystemLoader, select_autoescape
 from .collector import Collector
 from .config import data_dir, database_path
 from .db import Database
+from .health import check_devices_health
 from .storage import CollectorStorage
 
 
@@ -46,11 +47,14 @@ app.mount("/static", StaticFiles(directory=str(BASE_DIR / "static")), name="stat
 @app.get("/")
 async def index(request: Request):
     devices = db.list_devices_with_status()
+    device_models = [device for device, _ in devices]
+    health_by_device = await check_devices_health(device_models, storage)
     return templates.TemplateResponse(
         request,
         "index.html",
         {
             "devices": devices,
+            "health_by_device": health_by_device,
             "data_dir": str(data_dir()),
             "logs_dir": str(storage.logs_root),
         },
@@ -167,6 +171,11 @@ async def download_current_audit():
     if not path.exists():
         raise HTTPException(status_code=404, detail="No audit log yet")
     return FileResponse(path, media_type="text/plain", filename=path.name)
+
+
+@app.api_route("/favicon.ico", methods=["GET", "HEAD"])
+async def favicon():
+    return FileResponse(BASE_DIR / "static" / "favicon.svg", media_type="image/svg+xml")
 
 
 def normalize_slug(value: str) -> str:

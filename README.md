@@ -27,6 +27,10 @@ FERMENT_COLLECTOR_DATA_DIR=/path/to/data uvicorn ferment_log_collector.main:app
 ## Notes
 
 - The seed device is `TresFermTrack-1`, disabled until you edit its base URL.
+- Use the device IP address for the Base URL, for example
+  `http://192.168.1.50`. Hostnames ending in `.local` rely on mDNS/Bonjour and
+  may resolve slowly or fail from the collector process even when they work in a
+  browser.
 - Device files are stored by stable slug, for example
   `logs/devices/tresfermtrack-1/`.
 - HTTP 404 from `/glycol_log.archived.csv` is treated as a normal "no archive

@@ -50,9 +50,26 @@ h2 {
   line-height: 1.25;
 }
 
+.hint {
+  max-width: 760px;
+  margin: 6px 0 16px;
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 1.45;
+}
+
 .topbar p,
-.device-head p,
 footer {
+  margin-top: 6px;
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.device-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
   margin-top: 6px;
   color: var(--muted);
   font-size: 14px;
@@ -111,6 +128,36 @@ main {
 .state.off {
   color: #6941c6;
   background: #f4ebff;
+}
+
+.mini-badge {
+  display: inline-flex;
+  align-items: center;
+  min-height: 22px;
+  padding: 3px 8px;
+  border-radius: 999px;
+  border: 1px solid transparent;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.mini-badge.good {
+  color: var(--ok);
+  background: #dcfae6;
+  border-color: #abefc6;
+}
+
+.mini-badge.warn {
+  color: #93370d;
+  background: #fef0c7;
+  border-color: #fedf89;
+}
+
+.mini-badge.bad {
+  color: var(--danger);
+  background: #fef3f2;
+  border-color: #fecdca;
 }
 
 .status-grid {

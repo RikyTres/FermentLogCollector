@@ -4,6 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>FermentLogCollector</title>
+    <link rel="icon" href="/static/favicon.svg" type="image/svg+xml">
     <link rel="stylesheet" href="/static/styles.css">
   </head>
   <body>
@@ -18,18 +19,19 @@
     <main>
       <section class="panel">
         <h2>Add device</h2>
+        <p class="hint">Use the device IP address for the Base URL. Hostnames ending in .local can be slow or unavailable to the collector process.</p>
         <form class="device-form add-form" method="post" action="/devices">
           <label>
             Name
-            <input name="name" placeholder="TresFermTrack-2" required>
+            <input name="name" placeholder="Fermenter-1" required>
           </label>
           <label>
             Slug
-            <input name="slug" placeholder="tresfermtrack-2">
+            <input name="slug" placeholder="fermenter-1">
           </label>
           <label>
             Base URL
-            <input name="base_url" placeholder="http://device.local" required>
+            <input name="base_url" placeholder="http://192.168.1.50" required>
           </label>
           <label>
             Poll interval
@@ -45,11 +47,23 @@
 
       <section class="devices">
         {% for device, status in devices %}
+        {% set health = health_by_device[device.id] %}
         <article class="device">
           <div class="device-head">
             <div>
               <h2>{{ device.name }}</h2>
-              <p>{{ device.slug }} · {{ device.base_url }}</p>
+              <div class="device-meta">
+                <span>{{ device.slug }} · {{ device.base_url }}</span>
+                <span class="mini-badge {{ 'good' if health.online else 'bad' }}">
+                  {{ 'Online' if health.online else 'Offline' }}
+                </span>
+                <span class="mini-badge {{ 'good' if health.live_file.present else 'bad' }}">
+                  Current {{ health.live_file.status_code or 'error' }}
+                </span>
+                <span class="mini-badge {{ 'good' if health.archive_file.present else 'warn' if health.archive_file.status_code == 404 else 'bad' }}">
+                  Archive {{ health.archive_file.status_code or 'error' }}
+                </span>
+              </div>
             </div>
             <span class="state {{ 'on' if device.enabled else 'off' }}">{{ 'Enabled' if device.enabled else 'Disabled' }}</span>
           </div>
@@ -87,7 +101,7 @@
             </label>
             <label>
               Base URL
-              <input name="base_url" value="{{ device.base_url }}" required>
+              <input name="base_url" value="{{ device.base_url }}" placeholder="http://192.168.1.50" required>
             </label>
             <label>
               Poll interval
@@ -122,5 +136,6 @@
         Runtime data: {{ data_dir }} · Logs: {{ logs_dir }}
       </footer>
     </main>
+    <script src="/static/app.js"></script>
   </body>
 </html>
