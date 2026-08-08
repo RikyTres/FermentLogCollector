@@ -175,7 +175,7 @@ async def download_current_audit():
 
 @app.api_route("/favicon.ico", methods=["GET", "HEAD"])
 async def favicon():
-    return FileResponse(BASE_DIR / "static" / "favicon.svg", media_type="image/svg+xml")
+    return FileResponse(BASE_DIR / "static" / "favicon.png", media_type="image/png")
 
 
 def normalize_slug(value: str) -> str:
