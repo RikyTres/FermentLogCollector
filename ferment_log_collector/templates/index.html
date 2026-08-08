@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>FermentLogCollector</title>
+    <link rel="stylesheet" href="/static/styles.css">
+  </head>
+  <body>
+    <header class="topbar">
+      <div>
+        <h1>FermentLogCollector</h1>
+        <p>Local archive collection for BrewPi-ESP glycol events</p>
+      </div>
+      <a class="button secondary" href="/audit/current.log">Audit log</a>
+    </header>
+
+    <main>
+      <section class="panel">
+        <h2>Add device</h2>
+        <form class="device-form add-form" method="post" action="/devices">
+          <label>
+            Name
+            <input name="name" placeholder="TresFermTrack-2" required>
+          </label>
+          <label>
+            Slug
+            <input name="slug" placeholder="tresfermtrack-2">
+          </label>
+          <label>
+            Base URL
+            <input name="base_url" placeholder="http://device.local" required>
+          </label>
+          <label>
+            Poll interval
+            <input name="polling_interval_seconds" type="number" min="10" value="300" required>
+          </label>
+          <label class="check">
+            <input name="enabled" type="checkbox">
+            Enabled
+          </label>
+          <button class="button" type="submit">Add</button>
+        </form>
+      </section>
+
+      <section class="devices">
+        {% for device, status in devices %}
+        <article class="device">
+          <div class="device-head">
+            <div>
+              <h2>{{ device.name }}</h2>
+              <p>{{ device.slug }} · {{ device.base_url }}</p>
+            </div>
+            <span class="state {{ 'on' if device.enabled else 'off' }}">{{ 'Enabled' if device.enabled else 'Disabled' }}</span>
+          </div>
+
+          <dl class="status-grid">
+            <div><dt>Last fetch</dt><dd>{{ status.last_fetch_at or 'Never' }}</dd></div>
+            <div><dt>Last success</dt><dd>{{ status.last_success_at or 'Never' }}</dd></div>
+            <div><dt>Last new archive</dt><dd>{{ status.last_new_archive_at or 'Never' }}</dd></div>
+            <div><dt>HTTP status</dt><dd>{{ status.last_http_status or 'None' }}</dd></div>
+            <div><dt>Rows collected</dt><dd>{{ status.rows_collected }}</dd></div>
+            <div><dt>Last archive SHA-256</dt><dd class="hash">{{ status.last_archive_sha256 or 'None' }}</dd></div>
+            <div><dt>Live snapshot</dt><dd>{{ status.live_snapshot_at or 'Never' }}</dd></div>
+          </dl>
+
+          {% if status.last_http_status == 404 %}
+          <div class="notice">
+            Archived log not supported or not present yet.
+          </div>
+          {% endif %}
+
+          {% if status.last_error or status.live_snapshot_error %}
+          <div class="error">
+            {{ status.last_error or status.live_snapshot_error }}
+          </div>
+          {% endif %}
+
+          <form class="device-form" method="post" action="/devices/{{ device.id }}">
+            <label>
+              Name
+              <input name="name" value="{{ device.name }}" required>
+            </label>
+            <label>
+              Slug
+              <input name="slug" value="{{ device.slug }}" required>
+            </label>
+            <label>
+              Base URL
+              <input name="base_url" value="{{ device.base_url }}" required>
+            </label>
+            <label>
+              Poll interval
+              <input name="polling_interval_seconds" type="number" min="10" value="{{ device.polling_interval_seconds }}" required>
+            </label>
+            <label class="check">
+              <input name="enabled" type="checkbox" {{ 'checked' if device.enabled else '' }}>
+              Enabled
+            </label>
+            <button class="button" type="submit">Save</button>
+          </form>
+
+          <div class="actions">
+            <form method="post" action="/devices/{{ device.id }}/poll">
+              <button class="button secondary" type="submit">Poll now</button>
+            </form>
+            <form method="post" action="/devices/{{ device.id }}/live-snapshot">
+              <button class="button secondary" type="submit">Live snapshot</button>
+            </form>
+            <a class="button secondary" href="/devices/{{ device.id }}/combined.csv">Combined CSV</a>
+            <a class="button secondary" href="/devices/{{ device.id }}/latest-archive.csv">Latest archive</a>
+            <a class="button secondary" href="/devices/{{ device.id }}/live.csv">Live CSV</a>
+            <form method="post" action="/devices/{{ device.id }}/delete" onsubmit="return confirm('Delete {{ device.name }}?');">
+              <button class="button danger" type="submit">Delete</button>
+            </form>
+          </div>
+        </article>
+        {% endfor %}
+      </section>
+
+      <footer>
+        Runtime data: {{ data_dir }} · Logs: {{ logs_dir }}
+      </footer>
+    </main>
+  </body>
+</html>
