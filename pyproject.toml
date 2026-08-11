@@ -1,6 +1,10 @@
+[build-system]
+requires = ["setuptools==82.0.0"]
+build-backend = "setuptools.build_meta"
+
 [project]
 name = "ferment-log-collector"
-version = "0.1.0"
+version = "0.1.1"
 description = "Local collector for BrewPi-ESP glycol event archives."
 requires-python = ">=3.11"
 dependencies = [
@@ -17,7 +21,19 @@ dev = [
     "pytest-asyncio>=0.23.0",
 ]
 
+[tool.setuptools]
+packages = ["ferment_log_collector"]
+include-package-data = true
+
+[tool.setuptools.package-data]
+ferment_log_collector = [
+    "templates/*.html",
+    "static/*.css",
+    "static/*.js",
+    "static/*.png",
+    "static/assets/*.png",
+]
+
 [tool.pytest.ini_options]
 asyncio_mode = "auto"
 testpaths = ["tests"]
-

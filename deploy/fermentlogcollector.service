@@ -1,0 +1,24 @@
+[Unit]
+Description=FermentLogCollector
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+DynamicUser=yes
+StateDirectory=fermentlogcollector
+StateDirectoryMode=0750
+WorkingDirectory=/opt/FermentLogCollector
+Environment=FERMENT_COLLECTOR_DATA_DIR=/var/lib/fermentlogcollector/data
+Environment=PYTHONUNBUFFERED=1
+ExecStart=/opt/FermentLogCollector/.venv/bin/python -m uvicorn ferment_log_collector.main:app --host 0.0.0.0 --port 8000
+Restart=on-failure
+RestartSec=5
+UMask=0027
+NoNewPrivileges=yes
+PrivateTmp=yes
+ProtectHome=yes
+ProtectSystem=strict
+
+[Install]
+WantedBy=multi-user.target

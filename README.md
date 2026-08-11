@@ -8,88 +8,79 @@ appends only new data rows to a long per-device combined CSV.
 
 ![FermentLogCollector dashboard](docs/images/dashboard.jpg)
 
-## Installation
+## Requirements
 
-Install a stable release tag instead of tracking the latest `master` branch:
+- Linux with Python 3.11 or newer
+- Git
+- The Python virtual environment module
+
+On Raspberry Pi OS or Debian:
 
 ```sh
-sudo mkdir -p /opt/FermentLogCollector
-sudo chown "$USER":"$(id -gn)" /opt/FermentLogCollector
-git clone https://github.com/RikyTres/FermentLogCollector.git /opt/FermentLogCollector
-cd /opt/FermentLogCollector
-git fetch --tags
-git checkout v0.1.0
-python3 -m venv .venv
-. .venv/bin/activate
-python -m pip install .
-FERMENT_COLLECTOR_DATA_DIR=/var/lib/fermentlogcollector .venv/bin/python -m uvicorn ferment_log_collector.main:app --host 0.0.0.0 --port 8000
+sudo apt update
+sudo apt install -y git python3-venv
 ```
 
-Open http://127.0.0.1:8000.
+## Quick Test
+
+This keeps the application and its collected data in the current user's home
+directory:
+
+```sh
+git clone --branch v0.1.1 --depth 1 https://github.com/RikyTres/FermentLogCollector.git
+cd FermentLogCollector
+python3 -m venv .venv
+.venv/bin/python -m pip install -c requirements.lock .
+FERMENT_COLLECTOR_DATA_DIR="$PWD/data" .venv/bin/python -m uvicorn ferment_log_collector.main:app --host 0.0.0.0 --port 8000
+```
+
+Open `http://<raspberry-pi-ip>:8000` from another computer, or
+`http://127.0.0.1:8000` directly on the Raspberry Pi. Stop the test with
+`Ctrl+C`.
+
+## Permanent Installation
+
+The included `systemd` service starts the collector at boot, runs it without
+root privileges, and stores persistent state under
+`/var/lib/fermentlogcollector/`.
+
+```sh
+sudo git clone --branch v0.1.1 --depth 1 https://github.com/RikyTres/FermentLogCollector.git /opt/FermentLogCollector
+sudo python3 -m venv /opt/FermentLogCollector/.venv
+sudo /opt/FermentLogCollector/.venv/bin/python -m pip install -c /opt/FermentLogCollector/requirements.lock /opt/FermentLogCollector
+sudo install -m 0644 /opt/FermentLogCollector/deploy/fermentlogcollector.service /etc/systemd/system/fermentlogcollector.service
+sudo systemctl daemon-reload
+sudo systemctl enable --now fermentlogcollector
+```
+
+Check the service and recent logs with:
+
+```sh
+sudo systemctl status fermentlogcollector
+sudo journalctl -u fermentlogcollector -n 50 --no-pager
+```
 
 On first launch, add your BrewPi-ESP device from the web GUI. New installations
 do not create a default device.
 
-If a release tag is not available yet, pin an exact commit instead:
+## Updating
+
+Updates remain pinned to an explicit release. The following example updates to
+a future `v0.1.2` release:
 
 ```sh
-git checkout <commit-sha>
-```
-
-The app creates its SQLite database under `data/` and collected logs under
-`logs/` by default. For a persistent install, set `FERMENT_COLLECTOR_DATA_DIR`
-to a stable writable directory such as `/var/lib/fermentlogcollector`.
-
-### Updating
-
-Updates should be intentional:
-
-```sh
-cd /opt/FermentLogCollector
-git fetch --tags
-git checkout <new-release-tag>
-. .venv/bin/activate
-python -m pip install .
+sudo git -C /opt/FermentLogCollector fetch --depth 1 origin tag v0.1.2
+sudo git -C /opt/FermentLogCollector checkout v0.1.2
+sudo /opt/FermentLogCollector/.venv/bin/python -m pip install -c /opt/FermentLogCollector/requirements.lock /opt/FermentLogCollector
 sudo systemctl restart fermentlogcollector
-```
-
-### Systemd Service
-
-On a Linux host, create `/etc/systemd/system/fermentlogcollector.service`:
-
-```ini
-[Unit]
-Description=FermentLogCollector
-After=network-online.target
-Wants=network-online.target
-
-[Service]
-Type=simple
-WorkingDirectory=/opt/FermentLogCollector
-Environment=FERMENT_COLLECTOR_DATA_DIR=/var/lib/fermentlogcollector
-ExecStart=/opt/FermentLogCollector/.venv/bin/python -m uvicorn ferment_log_collector.main:app --host 0.0.0.0 --port 8000
-Restart=on-failure
-RestartSec=5
-
-[Install]
-WantedBy=multi-user.target
-```
-
-Then enable it:
-
-```sh
-sudo mkdir -p /var/lib/fermentlogcollector
-sudo systemctl daemon-reload
-sudo systemctl enable --now fermentlogcollector
 ```
 
 ## Development Quick Start
 
 ```sh
 python3 -m venv .venv
-. .venv/bin/activate
-python -m pip install -e ".[dev]"
-uvicorn ferment_log_collector.main:app --reload
+.venv/bin/python -m pip install -c requirements.lock -e ".[dev]"
+.venv/bin/python -m uvicorn ferment_log_collector.main:app --reload
 ```
 
 ## Notes
@@ -100,6 +91,9 @@ uvicorn ferment_log_collector.main:app --reload
   `http://192.168.1.50`. Hostnames ending in `.local` rely on mDNS/Bonjour and
   may resolve slowly or fail from the collector process even when they work in a
   browser.
+- Persistent installations store the database under
+  `/var/lib/fermentlogcollector/data/` and logs under
+  `/var/lib/fermentlogcollector/logs/`.
 - Device files are stored by stable slug, for example
   `logs/devices/fermenter-1/`.
 - HTTP 404 from `/glycol_log.archived.csv` is treated as a normal "no archive
