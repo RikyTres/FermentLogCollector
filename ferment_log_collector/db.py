@@ -61,21 +61,6 @@ class Database:
     def init(self) -> None:
         with self.connect() as conn:
             conn.executescript(SCHEMA)
-            self.ensure_seed_device(conn)
-
-    def ensure_seed_device(self, conn: sqlite3.Connection) -> None:
-        existing = conn.execute("SELECT id FROM devices WHERE slug = ?", ("tresfermtrack-1",)).fetchone()
-        if existing:
-            return
-        now = utc_now_iso()
-        cursor = conn.execute(
-            """
-            INSERT INTO devices (name, slug, base_url, polling_interval_seconds, enabled, created_at, updated_at)
-            VALUES (?, ?, ?, ?, ?, ?, ?)
-            """,
-            ("TresFermTrack-1", "tresfermtrack-1", "http://tresfermtrack-1.local", 300, 0, now, now),
-        )
-        conn.execute("INSERT INTO device_status (device_id) VALUES (?)", (cursor.lastrowid,))
 
     def list_devices_with_status(self) -> list[tuple[Device, DeviceStatus]]:
         with self.connect() as conn:

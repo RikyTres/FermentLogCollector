@@ -9,8 +9,8 @@ async def test_device_health_reports_online_with_missing_archive(tmp_path):
     storage = CollectorStorage(tmp_path / "data")
     device = Device(
         id=1,
-        name="TresFermTrack-1",
-        slug="tresfermtrack-1",
+        name="Fermenter-1",
+        slug="fermenter-1",
         base_url="http://example.local",
         polling_interval_seconds=300,
         enabled=True,

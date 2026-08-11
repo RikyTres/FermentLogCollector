@@ -6,17 +6,16 @@ The collector polls each enabled device at `/glycol_log.archived.csv`, hashes th
 CSV with SHA-256, deduplicates already-seen archives, stores the raw archive, and
 appends only new data rows to a long per-device combined CSV.
 
-## Installation
+![FermentLogCollector dashboard](docs/images/dashboard.jpg)
 
-This repository is private. For an unattended collector host, prefer SSH access
-with a dedicated deploy key or machine user.
+## Installation
 
 Install a stable release tag instead of tracking the latest `master` branch:
 
 ```sh
 sudo mkdir -p /opt/FermentLogCollector
 sudo chown "$USER":"$(id -gn)" /opt/FermentLogCollector
-git clone git@github.com:RikyTres/FermentLogCollector.git /opt/FermentLogCollector
+git clone https://github.com/RikyTres/FermentLogCollector.git /opt/FermentLogCollector
 cd /opt/FermentLogCollector
 git fetch --tags
 git checkout v0.1.0
@@ -27,6 +26,9 @@ FERMENT_COLLECTOR_DATA_DIR=/var/lib/fermentlogcollector .venv/bin/python -m uvic
 ```
 
 Open http://127.0.0.1:8000.
+
+On first launch, add your BrewPi-ESP device from the web GUI. New installations
+do not create a default device.
 
 If a release tag is not available yet, pin an exact commit instead:
 
@@ -45,7 +47,7 @@ Updates should be intentional:
 ```sh
 cd /opt/FermentLogCollector
 git fetch --tags
-git checkout v0.1.1
+git checkout <new-release-tag>
 . .venv/bin/activate
 python -m pip install .
 sudo systemctl restart fermentlogcollector
@@ -92,13 +94,14 @@ uvicorn ferment_log_collector.main:app --reload
 
 ## Notes
 
-- The seed device is `TresFermTrack-1`, disabled until you edit its base URL.
+- New installations start with no configured devices. Add the first device from
+  the web GUI.
 - Use the device IP address for the Base URL, for example
   `http://192.168.1.50`. Hostnames ending in `.local` rely on mDNS/Bonjour and
   may resolve slowly or fail from the collector process even when they work in a
   browser.
 - Device files are stored by stable slug, for example
-  `logs/devices/tresfermtrack-1/`.
+  `logs/devices/fermenter-1/`.
 - HTTP 404 from `/glycol_log.archived.csv` is treated as a normal "no archive
   yet" state.
 - `/glycol_log.csv` can be fetched on demand as a live snapshot from the UI.

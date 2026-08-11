@@ -14,7 +14,7 @@
         <h1>FermentLogCollector</h1>
         <p>Local archive collection for BrewPi-ESP glycol events</p>
       </div>
-      <a class="button secondary" href="/audit/current.log">Audit log</a>
+      <a class="button secondary" href="/audit/current.log" title="Download the current monthly collector audit log.">Audit log</a>
     </header>
 
     <main>
@@ -24,29 +24,35 @@
         <form class="device-form add-form" method="post" action="/devices">
           <label>
             Name
-            <input name="name" placeholder="Fermenter-1" required>
+            <input name="name" placeholder="Fermenter-1" title="Human-readable device name shown in the dashboard." required>
           </label>
           <label>
             Slug
-            <input name="slug" placeholder="fermenter-1">
+            <input name="slug" placeholder="fermenter-1" title="Stable filesystem-friendly device identifier. It is auto-filled from the name unless edited manually.">
           </label>
           <label>
             Base URL
-            <input name="base_url" placeholder="http://192.168.1.50" required>
+            <input name="base_url" placeholder="http://192.168.1.50" title="Use the device IP address, without a trailing path." required>
           </label>
           <label>
             Poll interval
-            <input name="polling_interval_seconds" type="number" min="10" value="300" required>
+            <input name="polling_interval_seconds" type="number" min="10" value="300" title="Seconds between automatic archive fetch attempts." required>
           </label>
-          <label class="check">
+          <label class="check" title="Enable automatic polling for this device. Manual fetch still works when disabled.">
             <input name="enabled" type="checkbox">
             Enabled
           </label>
-          <button class="button" type="submit">Add</button>
+          <button class="button" type="submit" title="Create this device configuration.">Add</button>
         </form>
       </section>
 
       <section class="devices">
+        {% if not devices %}
+        <div class="empty-state">
+          <h2>No devices configured</h2>
+          <p>Add your first BrewPi-ESP device above. Use its IP address as the Base URL, then use Poll now or enable automatic collection.</p>
+        </div>
+        {% endif %}
         {% for device, status in devices %}
         {% set health = health_by_device[device.id] %}
         <article class="device">
@@ -94,39 +100,39 @@
           <form class="device-form" method="post" action="/devices/{{ device.id }}">
             <label>
               Name
-              <input name="name" value="{{ device.name }}" required>
+              <input name="name" value="{{ device.name }}" title="Human-readable device name shown in the dashboard." required>
             </label>
             <label>
               Slug
-              <input name="slug" value="{{ device.slug }}" required>
+              <input name="slug" value="{{ device.slug }}" title="Stable filesystem-friendly device identifier. Changing it changes where future files are stored." required>
             </label>
             <label>
               Base URL
-              <input name="base_url" value="{{ device.base_url }}" placeholder="http://192.168.1.50" required>
+              <input name="base_url" value="{{ device.base_url }}" placeholder="http://192.168.1.50" title="Use the device IP address, without a trailing path." required>
             </label>
             <label>
               Poll interval
-              <input name="polling_interval_seconds" type="number" min="10" value="{{ device.polling_interval_seconds }}" required>
+              <input name="polling_interval_seconds" type="number" min="10" value="{{ device.polling_interval_seconds }}" title="Seconds between automatic archive fetch attempts." required>
             </label>
-            <label class="check">
+            <label class="check" title="Enable automatic polling for this device. Manual fetch still works when disabled.">
               <input name="enabled" type="checkbox" {{ 'checked' if device.enabled else '' }}>
               Enabled
             </label>
-            <button class="button" type="submit">Save</button>
+            <button class="button" type="submit" title="Save device settings.">Save</button>
           </form>
 
           <div class="actions">
             <form method="post" action="/devices/{{ device.id }}/poll">
-              <button class="button secondary" type="submit">Poll now</button>
+              <button class="button secondary" type="submit" title="Fetch the archived CSV once and append it if it is new.">Poll now</button>
             </form>
             <form method="post" action="/devices/{{ device.id }}/live-snapshot">
-              <button class="button secondary" type="submit">Live snapshot</button>
+              <button class="button secondary" type="submit" title="Fetch the current live glycol_log.csv snapshot without appending it to the durable CSV.">Live snapshot</button>
             </form>
-            <a class="button secondary" href="/devices/{{ device.id }}/combined.csv">Combined CSV</a>
-            <a class="button secondary" href="/devices/{{ device.id }}/latest-archive.csv">Latest archive</a>
-            <a class="button secondary" href="/devices/{{ device.id }}/live.csv">Live CSV</a>
+            <a class="button secondary" href="/devices/{{ device.id }}/combined.csv" title="Download the long-term combined CSV for this device.">Combined CSV</a>
+            <a class="button secondary" href="/devices/{{ device.id }}/latest-archive.csv" title="Download the most recently collected raw archive CSV.">Latest archive</a>
+            <a class="button secondary" href="/devices/{{ device.id }}/live.csv" title="Download the latest saved live snapshot CSV.">Live CSV</a>
             <form method="post" action="/devices/{{ device.id }}/delete" onsubmit="return confirm('Delete {{ device.name }}?');">
-              <button class="button danger" type="submit">Delete</button>
+              <button class="button danger" type="submit" title="Delete this device configuration. Collected files are left on disk.">Delete</button>
             </form>
           </div>
         </article>

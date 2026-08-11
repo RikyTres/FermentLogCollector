@@ -10,7 +10,7 @@ collector code to brewpi-esp.
 
 Goal:
 Build a small local web service that collects glycol event logs from one or more
-BrewPi-ESP devices. The first device is named TresFermTrack-1.
+BrewPi-ESP devices. The first device is named Fermenter-1.
 
 Context:
 BrewPi-ESP writes a glycol event CSV to /glycol_log.csv. We plan to modify the
@@ -52,4 +52,3 @@ Core requirements:
 Do not implement firmware changes in this project. Only build the remote
 collector.
 ```
-

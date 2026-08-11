@@ -98,6 +98,25 @@ main {
   gap: 18px;
 }
 
+.empty-state {
+  padding: 34px 22px;
+  color: var(--muted);
+  background: var(--surface);
+  border: 1px dashed #b8c4d2;
+  border-radius: 8px;
+  text-align: center;
+}
+
+.empty-state h2 {
+  color: var(--text);
+}
+
+.empty-state p {
+  max-width: 620px;
+  margin: 8px auto 0;
+  line-height: 1.5;
+}
+
 .device {
   padding: 22px;
 }

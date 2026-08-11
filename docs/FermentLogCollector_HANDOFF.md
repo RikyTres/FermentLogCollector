@@ -1,7 +1,7 @@
 # FermentLogCollector Handoff
 
 FermentLogCollector is a small remote service for collecting glycol event logs
-from one or more BrewPi-ESP devices, starting with `TresFermTrack-1`.
+from one or more BrewPi-ESP devices, starting with `Fermenter-1`.
 
 The collector must live in its own project/repository, separate from
 `brewpi-esp`, so it does not add host-side dependencies to the firmware
@@ -71,7 +71,7 @@ logs/
   collector/
     collector-2026-08.log
   devices/
-    tresfermtrack-1/
+    fermenter-1/
       glycol_log_combined.csv
       glycol_log_live.csv
       archives/
@@ -137,10 +137,10 @@ logs/collector/collector-YYYY-MM.log
 Example lines:
 
 ```text
-2026-08-08T13:01:00+02:00 INFO TresFermTrack-1 archived log unchanged hash=a8f3... bytes=42155 rows=180 duration_ms=184
-2026-08-08T13:02:00+02:00 WARN TresFermTrack-1 archived log not found status=404 duration_ms=91
-2026-08-08T13:03:00+02:00 ERROR TresFermTrack-1 fetch failed error=timeout duration_ms=5000
-2026-08-08T13:04:00+02:00 INFO TresFermTrack-1 new archived log appended hash=b712... rows_appended=211 bytes=49320 duration_ms=240
+2026-08-08T13:01:00+02:00 INFO Fermenter-1 archived log unchanged hash=a8f3... bytes=42155 rows=180 duration_ms=184
+2026-08-08T13:02:00+02:00 WARN Fermenter-1 archived log not found status=404 duration_ms=91
+2026-08-08T13:03:00+02:00 ERROR Fermenter-1 fetch failed error=timeout duration_ms=5000
+2026-08-08T13:04:00+02:00 INFO Fermenter-1 new archived log appended hash=b712... rows_appended=211 bytes=49320 duration_ms=240
 ```
 
 The audit log should answer:
@@ -178,14 +178,14 @@ Initial screens:
   - download latest raw archive;
   - download latest live snapshot.
 
-The first configured device should be:
+New installations should not create a seed device. A user-created device may use:
 
 ```text
-Name: TresFermTrack-1
-Slug: tresfermtrack-1
+Name: Fermenter-1
+Slug: fermenter-1
 Base URL: user-provided
-Polling interval: 60 seconds
-Enabled: false by default until configured
+Polling interval: 300 seconds
+Enabled: false by default
 ```
 
 ## Suggested Stack
@@ -219,4 +219,3 @@ Archived log not supported or not present yet.
 
 After the ESP-side archived-log rotation is implemented, the collector should
 start acquiring durable archives automatically.
-
