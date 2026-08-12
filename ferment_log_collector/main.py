@@ -16,9 +16,11 @@ from .config import data_dir, database_path
 from .db import Database
 from .health import check_devices_health
 from .storage import CollectorStorage
+from .version import app_version
 
 
 BASE_DIR = Path(__file__).resolve().parent
+APP_VERSION = app_version()
 template_env = Environment(
     loader=FileSystemLoader(str(BASE_DIR / "templates")),
     autoescape=select_autoescape(["html", "xml"]),
@@ -40,7 +42,7 @@ async def lifespan(_: FastAPI):
         await collector.stop()
 
 
-app = FastAPI(title="FermentLogCollector", lifespan=lifespan)
+app = FastAPI(title="FermentLogCollector", version=APP_VERSION, lifespan=lifespan)
 app.mount("/static", StaticFiles(directory=str(BASE_DIR / "static")), name="static")
 
 
@@ -57,6 +59,7 @@ async def index(request: Request):
             "health_by_device": health_by_device,
             "data_dir": str(data_dir()),
             "logs_dir": str(storage.logs_root),
+            "app_version": APP_VERSION,
         },
     )
 

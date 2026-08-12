@@ -65,6 +65,19 @@ footer {
   font-size: 14px;
 }
 
+.subtitle {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.app-version {
+  color: #475467;
+  font-size: 12px;
+  font-weight: 700;
+}
+
 .device-meta {
   display: flex;
   flex-wrap: wrap;
