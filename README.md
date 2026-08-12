@@ -27,7 +27,7 @@ This keeps the application and its collected data in the current user's home
 directory:
 
 ```sh
-git clone --branch v0.1.1 --depth 1 https://github.com/RikyTres/FermentLogCollector.git
+git clone --branch v0.2.0 --depth 1 https://github.com/RikyTres/FermentLogCollector.git
 cd FermentLogCollector
 python3 -m venv .venv
 .venv/bin/python -m pip install -c requirements.lock .
@@ -45,7 +45,7 @@ root privileges, and stores persistent state under
 `/var/lib/fermentlogcollector/`.
 
 ```sh
-sudo git clone --branch v0.1.1 --depth 1 https://github.com/RikyTres/FermentLogCollector.git /opt/FermentLogCollector
+sudo git clone --branch v0.2.0 --depth 1 https://github.com/RikyTres/FermentLogCollector.git /opt/FermentLogCollector
 sudo python3 -m venv /opt/FermentLogCollector/.venv
 sudo /opt/FermentLogCollector/.venv/bin/python -m pip install -c /opt/FermentLogCollector/requirements.lock /opt/FermentLogCollector
 sudo install -m 0644 /opt/FermentLogCollector/deploy/fermentlogcollector.service /etc/systemd/system/fermentlogcollector.service
@@ -66,11 +66,11 @@ do not create a default device.
 ## Updating
 
 Updates remain pinned to an explicit release. The following example updates to
-a future `v0.1.2` release:
+a future `v0.2.1` release:
 
 ```sh
-sudo git -C /opt/FermentLogCollector fetch --depth 1 origin tag v0.1.2
-sudo git -C /opt/FermentLogCollector checkout v0.1.2
+sudo git -C /opt/FermentLogCollector fetch --depth 1 origin tag v0.2.1
+sudo git -C /opt/FermentLogCollector checkout v0.2.1
 sudo /opt/FermentLogCollector/.venv/bin/python -m pip install -c /opt/FermentLogCollector/requirements.lock /opt/FermentLogCollector
 sudo systemctl restart fermentlogcollector
 ```
