@@ -65,6 +65,65 @@ footer {
   font-size: 14px;
 }
 
+.subtitle {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.app-version {
+  color: #475467;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.topbar-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+}
+
+#add-device-open {
+  min-width: 108px;
+}
+
+.panel-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.icon-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  color: var(--muted);
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  font: inherit;
+  font-size: 24px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.icon-button:hover {
+  color: var(--text);
+  background: var(--surface-strong);
+  border-color: var(--border);
+}
+
+.icon-button:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
 .device-meta {
   display: flex;
   flex-wrap: wrap;
@@ -91,6 +150,10 @@ main {
 .panel {
   padding: 22px;
   margin-bottom: 20px;
+}
+
+[hidden] {
+  display: none !important;
 }
 
 .devices {
@@ -317,6 +380,22 @@ input {
 
 footer {
   margin-top: 22px;
+  overflow-wrap: anywhere;
+}
+
+@media (min-width: 861px) and (max-width: 1100px) {
+  .device-form {
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+  }
+
+  .device-form > * {
+    min-width: 0;
+    grid-column: span 2;
+  }
+
+  .device-form > .button {
+    justify-self: end;
+  }
 }
 
 @media (max-width: 860px) {
@@ -333,5 +412,9 @@ footer {
 
   .state {
     width: max-content;
+  }
+
+  .topbar-actions .button {
+    flex: 1;
   }
 }

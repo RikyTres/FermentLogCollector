@@ -40,3 +40,32 @@ function attachSlugAutocomplete(form) {
 }
 
 document.querySelectorAll("form.device-form").forEach(attachSlugAutocomplete);
+
+function attachAddDeviceToggle() {
+  const openButton = document.querySelector("#add-device-open");
+  const closeButton = document.querySelector("#add-device-close");
+  const panel = document.querySelector("#add-device-panel");
+  if (!openButton || !closeButton || !panel) {
+    return;
+  }
+
+  function setExpanded(expanded) {
+    panel.hidden = !expanded;
+    openButton.hidden = expanded;
+    openButton.setAttribute("aria-expanded", String(expanded));
+  }
+
+  setExpanded(!panel.hidden);
+
+  openButton.addEventListener("click", () => {
+    setExpanded(true);
+    panel.querySelector('input[name="name"]')?.focus();
+  });
+
+  closeButton.addEventListener("click", () => {
+    setExpanded(false);
+    openButton.focus();
+  });
+}
+
+attachAddDeviceToggle();
