@@ -17,12 +17,32 @@
           <span class="app-version" title="Application version">v{{ app_version }}</span>
         </p>
       </div>
-      <a class="button secondary" href="/audit/current.log" title="Download the current monthly collector audit log.">Audit log</a>
+      <div class="topbar-actions">
+        <button
+          class="button"
+          id="add-device-open"
+          type="button"
+          aria-controls="add-device-panel"
+          aria-expanded="{{ 'true' if show_add_device else 'false' }}"
+          title="Show the new device form."
+          {% if show_add_device %}hidden{% endif %}
+        >Add device</button>
+        <a class="button secondary" href="/audit/current.log" title="Download the current monthly collector audit log.">Audit log</a>
+      </div>
     </header>
 
     <main>
-      <section class="panel">
-        <h2>Add device</h2>
+      <section class="panel" id="add-device-panel"{% if not show_add_device %} hidden{% endif %}>
+        <div class="panel-head">
+          <h2>Add device</h2>
+          <button
+            class="icon-button"
+            id="add-device-close"
+            type="button"
+            aria-label="Close add device form"
+            title="Close form"
+          >&times;</button>
+        </div>
         <p class="hint">Use the device IP address for the Base URL. Hostnames ending in .local can be slow or unavailable to the collector process.</p>
         <form class="device-form add-form" method="post" action="/devices">
           <label>

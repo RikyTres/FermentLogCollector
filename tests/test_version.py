@@ -39,6 +39,7 @@ def test_index_template_renders_supplied_version():
         health_by_device={},
         data_dir="data",
         logs_dir="logs",
+        show_add_device=True,
     )
 
     assert '<span class="app-version" title="Application version">v9.8.7</span>' in rendered

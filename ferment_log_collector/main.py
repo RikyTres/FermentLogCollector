@@ -60,6 +60,7 @@ async def index(request: Request):
             "data_dir": str(data_dir()),
             "logs_dir": str(storage.logs_root),
             "app_version": APP_VERSION,
+            "show_add_device": not devices,
         },
     )
 
