@@ -312,7 +312,8 @@ label {
   text-transform: uppercase;
 }
 
-input {
+input,
+select {
   width: 100%;
   height: 38px;
   padding: 8px 10px;
@@ -322,6 +323,10 @@ input {
   border-radius: 6px;
   font: inherit;
   font-size: 14px;
+}
+
+select {
+  min-width: 96px;
 }
 
 .check {
@@ -356,6 +361,11 @@ input {
   background: var(--accent-dark);
 }
 
+.button:disabled {
+  opacity: 0.65;
+  cursor: wait;
+}
+
 .button.secondary {
   color: var(--accent);
   background: #ffffff;
@@ -376,6 +386,75 @@ input {
   flex-wrap: wrap;
   gap: 10px;
   margin-top: 16px;
+}
+
+.log-viewer {
+  margin-bottom: 20px;
+}
+
+.log-viewer-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: end;
+  gap: 10px;
+  margin: 16px 0;
+}
+
+.log-viewer-controls label {
+  width: 120px;
+}
+
+.log-viewer-error {
+  padding: 10px 12px;
+  color: var(--danger);
+  background: #fef3f2;
+  border: 1px solid #fecdca;
+  border-radius: 8px;
+  font-size: 14px;
+}
+
+.log-table-wrap,
+.log-text {
+  max-height: min(560px, 62vh);
+  overflow: auto;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: #ffffff;
+}
+
+.log-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.log-table th,
+.log-table td {
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--border);
+  text-align: left;
+  white-space: nowrap;
+}
+
+.log-table th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  color: #344054;
+  background: var(--surface-strong);
+  font-size: 12px;
+  text-transform: uppercase;
+}
+
+.log-text {
+  min-height: 180px;
+  margin: 0;
+  padding: 12px;
+  color: #1d2939;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 12px;
+  line-height: 1.6;
+  white-space: pre-wrap;
 }
 
 footer {
@@ -416,5 +495,10 @@ footer {
 
   .topbar-actions .button {
     flex: 1;
+  }
+
+  .log-viewer-controls label,
+  .log-viewer-controls .button {
+    flex: 1 1 140px;
   }
 }

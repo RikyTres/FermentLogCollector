@@ -61,3 +61,35 @@ def test_archive_urls_are_normalized(tmp_path):
 
     assert storage.archive_url(device) == "http://example.local/glycol_log.archived.csv"
     assert storage.live_url(device) == "http://example.local/glycol_log.csv"
+
+
+def test_csv_preview_returns_header_and_tail_rows(tmp_path):
+    storage = CollectorStorage(tmp_path / "data")
+    path = tmp_path / "sample.csv"
+    path.write_text(
+        "time,event,value\n"
+        "2026-01-01T00:00:00Z,pump_on,1\n"
+        "2026-01-01T00:01:00Z,pump_off,0\n"
+        "2026-01-01T00:02:00Z,cool,1\n",
+        encoding="utf-8",
+    )
+
+    assert storage.csv_preview(path, tail=2) == {
+        "columns": ["time", "event", "value"],
+        "rows": [
+            ["2026-01-01T00:01:00Z", "pump_off", "0"],
+            ["2026-01-01T00:02:00Z", "cool", "1"],
+        ],
+        "total_rows": 3,
+    }
+
+
+def test_text_tail_returns_latest_lines_and_count(tmp_path):
+    storage = CollectorStorage(tmp_path / "data")
+    path = tmp_path / "collector.log"
+    path.write_text("line 1\nline 2\nline 3\n", encoding="utf-8")
+
+    assert storage.text_tail(path, tail=2) == {
+        "lines": ["line 2", "line 3"],
+        "total_lines": 3,
+    }

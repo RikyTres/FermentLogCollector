@@ -27,7 +27,16 @@
           title="Show the new device form."
           {% if show_add_device %}hidden{% endif %}
         >Add device</button>
-        <a class="button secondary" href="/audit/current.log" title="Download the current monthly collector audit log.">Audit log</a>
+        <button
+          class="button secondary"
+          type="button"
+          data-log-viewer-open
+          data-log-url="/api/audit/current"
+          data-log-download="/audit/current.log"
+          data-log-title="Collector audit log"
+          title="View the current monthly collector audit log."
+        >View audit</button>
+        <a class="button secondary" href="/audit/current.log" title="Download the current monthly collector audit log.">Download audit</a>
       </div>
     </header>
 
@@ -67,6 +76,40 @@
           </label>
           <button class="button" type="submit" title="Create this device configuration.">Add</button>
         </form>
+      </section>
+
+      <section class="panel log-viewer" id="log-viewer" hidden>
+        <div class="panel-head">
+          <div>
+            <h2 id="log-viewer-title">Log viewer</h2>
+            <p class="hint" id="log-viewer-summary"></p>
+          </div>
+          <button
+            class="icon-button"
+            id="log-viewer-close"
+            type="button"
+            aria-label="Close log viewer"
+            title="Close log viewer"
+          >&times;</button>
+        </div>
+        <div class="log-viewer-controls">
+          <label>
+            Rows
+            <select id="log-viewer-tail" title="Number of latest rows or lines to show.">
+              <option value="50">50</option>
+              <option value="100" selected>100</option>
+              <option value="200">200</option>
+              <option value="500">500</option>
+            </select>
+          </label>
+          <button class="button secondary" id="log-viewer-refresh" type="button" title="Reload this preview.">Refresh</button>
+          <a class="button secondary" id="log-viewer-download" href="#" title="Download the full log file.">Download</a>
+        </div>
+        <div class="log-viewer-error" id="log-viewer-error" hidden></div>
+        <div class="log-table-wrap" id="log-viewer-table-wrap" hidden>
+          <table class="log-table" id="log-viewer-table"></table>
+        </div>
+        <pre class="log-text" id="log-viewer-text" hidden></pre>
       </section>
 
       <section class="devices">
@@ -152,8 +195,35 @@
               <button class="button secondary" type="submit" title="Fetch the current live glycol_log.csv snapshot without appending it to the durable CSV.">Live snapshot</button>
             </form>
             <a class="button secondary" href="/devices/{{ device.id }}/combined.csv" title="Download the long-term combined CSV for this device.">Combined CSV</a>
+            <button
+              class="button secondary"
+              type="button"
+              data-log-viewer-open
+              data-log-url="/api/devices/{{ device.id }}/logs/combined"
+              data-log-download="/devices/{{ device.id }}/combined.csv"
+              data-log-title="{{ device.name }} combined CSV"
+              title="View the latest rows from the long-term combined CSV."
+            >View combined</button>
             <a class="button secondary" href="/devices/{{ device.id }}/latest-archive.csv" title="Download the most recently collected raw archive CSV.">Latest archive</a>
+            <button
+              class="button secondary"
+              type="button"
+              data-log-viewer-open
+              data-log-url="/api/devices/{{ device.id }}/logs/latest-archive"
+              data-log-download="/devices/{{ device.id }}/latest-archive.csv"
+              data-log-title="{{ device.name }} latest archive"
+              title="View the latest rows from the most recently collected raw archive CSV."
+            >View archive</button>
             <a class="button secondary" href="/devices/{{ device.id }}/live.csv" title="Download the latest saved live snapshot CSV.">Live CSV</a>
+            <button
+              class="button secondary"
+              type="button"
+              data-log-viewer-open
+              data-log-url="/api/devices/{{ device.id }}/logs/live"
+              data-log-download="/devices/{{ device.id }}/live.csv"
+              data-log-title="{{ device.name }} live snapshot"
+              title="View the latest rows from the saved live snapshot CSV."
+            >View live</button>
             <form method="post" action="/devices/{{ device.id }}/delete" onsubmit="return confirm('Delete {{ device.name }}?');">
               <button class="button danger" type="submit" title="Delete this device configuration. Collected files are left on disk.">Delete</button>
             </form>

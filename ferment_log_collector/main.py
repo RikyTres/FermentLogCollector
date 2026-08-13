@@ -5,7 +5,7 @@ from pathlib import Path
 import re
 import sqlite3
 
-from fastapi import FastAPI, Form, HTTPException, Request
+from fastapi import FastAPI, Form, HTTPException, Query, Request
 from fastapi.responses import FileResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
@@ -169,12 +169,55 @@ async def download_live_snapshot(device_id: int):
     return FileResponse(path, media_type="text/csv", filename=path.name)
 
 
+@app.get("/api/devices/{device_id}/logs/{log_name}")
+async def device_log_preview(device_id: int, log_name: str, tail: int = Query(100, ge=1, le=1000)):
+    device = db.get_device(device_id)
+    if device is None:
+        raise HTTPException(status_code=404)
+
+    if log_name == "combined":
+        path = storage.combined_csv_path(device)
+        missing_detail = "Combined CSV not created yet"
+    elif log_name == "latest-archive":
+        stored_path = next(
+            (status.latest_archive_path for item, status in db.list_devices_with_status() if item.id == device_id),
+            None,
+        )
+        path = Path(stored_path) if stored_path else storage.latest_archive_path(device)
+        missing_detail = "No raw archive collected yet"
+    elif log_name == "live":
+        path = storage.live_snapshot_path(device)
+        missing_detail = "No live snapshot saved yet"
+    else:
+        raise HTTPException(status_code=404, detail="Unknown device log")
+
+    if path is None or not path.exists():
+        raise HTTPException(status_code=404, detail=missing_detail)
+
+    preview = storage.csv_preview(path, tail)
+    preview["kind"] = "csv"
+    preview["name"] = log_name
+    return preview
+
+
 @app.get("/audit/current.log")
 async def download_current_audit():
     path = storage.current_audit_path()
     if not path.exists():
         raise HTTPException(status_code=404, detail="No audit log yet")
     return FileResponse(path, media_type="text/plain", filename=path.name)
+
+
+@app.get("/api/audit/current")
+async def current_audit_preview(tail: int = Query(100, ge=1, le=1000)):
+    path = storage.current_audit_path()
+    if not path.exists():
+        raise HTTPException(status_code=404, detail="No audit log yet")
+
+    preview = storage.text_tail(path, tail)
+    preview["kind"] = "text"
+    preview["name"] = "audit"
+    return preview
 
 
 @app.get("/favicon.ico", include_in_schema=False)

@@ -3,6 +3,7 @@ from __future__ import annotations
 import csv
 import hashlib
 import io
+from collections import deque
 from datetime import datetime
 from pathlib import Path
 
@@ -82,6 +83,28 @@ class CollectorStorage:
     def count_data_rows(self, content: bytes) -> int:
         rows = self._csv_rows(content)
         return max(len(rows) - 1, 0)
+
+    def csv_preview(self, path: Path, tail: int) -> dict[str, object]:
+        rows = self._csv_rows(path.read_bytes())
+        if not rows:
+            return {"columns": [], "rows": [], "total_rows": 0}
+
+        columns = rows[0]
+        data_rows = rows[1:]
+        return {
+            "columns": columns,
+            "rows": data_rows[-tail:],
+            "total_rows": len(data_rows),
+        }
+
+    def text_tail(self, path: Path, tail: int) -> dict[str, object]:
+        lines: deque[str] = deque(maxlen=tail)
+        line_count = 0
+        with path.open(encoding="utf-8", errors="replace") as handle:
+            for line in handle:
+                line_count += 1
+                lines.append(line.rstrip("\n"))
+        return {"lines": list(lines), "total_lines": line_count}
 
     def _csv_rows(self, content: bytes) -> list[list[str]]:
         text = content.decode("utf-8-sig", errors="replace")
