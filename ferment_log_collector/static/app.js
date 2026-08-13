@@ -70,6 +70,78 @@ function attachAddDeviceToggle() {
 
 attachAddDeviceToggle();
 
+function attachActionFeedback() {
+  document.querySelectorAll("[data-action-feedback-form]").forEach((form) => {
+    form.addEventListener("submit", () => {
+      const device = form.closest(".device");
+      const feedback = device?.querySelector("[data-action-feedback]");
+      const submitButton = form.querySelector('button[type="submit"]');
+      if (!feedback || !submitButton) {
+        return;
+      }
+
+      feedback.textContent = form.dataset.actionFeedbackMessage || "Working...";
+      feedback.className = "action-feedback info";
+      feedback.hidden = false;
+      submitButton.disabled = true;
+      submitButton.textContent = "Working...";
+    });
+  });
+}
+
+attachActionFeedback();
+
+function attachFlashDismissal() {
+  const flash = document.querySelector(".flash");
+  if (!flash) {
+    return;
+  }
+
+  window.setTimeout(() => {
+    flash.hidden = true;
+  }, 8000);
+
+  const url = new URL(window.location.href);
+  if (url.searchParams.has("flash")) {
+    url.searchParams.delete("flash");
+    window.history.replaceState({}, "", `${url.pathname}${url.search}${url.hash}`);
+  }
+}
+
+attachFlashDismissal();
+
+function attachActionMenus() {
+  const menus = [...document.querySelectorAll("details.action-menu")];
+
+  menus.forEach((menu) => {
+    menu.addEventListener("toggle", () => {
+      if (!menu.open) {
+        return;
+      }
+      menus.forEach((otherMenu) => {
+        if (otherMenu !== menu) {
+          otherMenu.removeAttribute("open");
+        }
+      });
+    });
+  });
+
+  document.addEventListener("click", (event) => {
+    if (event.target.closest("details.action-menu")) {
+      return;
+    }
+    menus.forEach((menu) => menu.removeAttribute("open"));
+  });
+
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape") {
+      menus.forEach((menu) => menu.removeAttribute("open"));
+    }
+  });
+}
+
+attachActionMenus();
+
 function attachLogViewer() {
   const viewer = document.querySelector("#log-viewer");
   const title = document.querySelector("#log-viewer-title");

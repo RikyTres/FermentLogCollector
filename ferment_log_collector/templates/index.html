@@ -120,12 +120,17 @@
         {% if not devices %}
         <div class="empty-state">
           <h2>No devices configured</h2>
-          <p>Add your first BrewPi-ESP device above. Use its IP address as the Base URL, then use Poll now or enable automatic collection.</p>
+          <p>Add your first BrewPi-ESP device above. Use its IP address as the Base URL, then use Collect archive now or enable automatic collection.</p>
+        </div>
+        {% endif %}
+        {% if flash %}
+        <div class="flash {{ flash.level }}" role="status">
+          {{ flash.message }}
         </div>
         {% endif %}
         {% for device, status in devices %}
         {% set health = health_by_device[device.id] %}
-        <article class="device">
+        <article class="device" id="device-{{ device.id }}">
           <div class="device-head">
             <div>
               <h2>{{ device.name }}</h2>
@@ -152,7 +157,7 @@
             <div><dt>HTTP status</dt><dd>{{ status.last_http_status or 'None' }}</dd></div>
             <div><dt>Rows collected</dt><dd>{{ status.rows_collected }}</dd></div>
             <div><dt>Last archive SHA-256</dt><dd class="hash">{{ status.last_archive_sha256 or 'None' }}</dd></div>
-            <div><dt>Live snapshot</dt><dd>{{ status.live_snapshot_at or 'Never' }}</dd></div>
+            <div><dt>Current data saved</dt><dd>{{ status.live_snapshot_at or 'Never' }}</dd></div>
           </dl>
 
           {% if status.last_http_status == 404 %}
@@ -191,43 +196,57 @@
             <button class="button" type="submit" title="Save device settings.">Save</button>
           </form>
 
+          <div class="action-feedback" data-action-feedback hidden></div>
+
           <div class="actions">
-            <form method="post" action="/devices/{{ device.id }}/poll">
-              <button class="button secondary" type="submit" title="Fetch the archived CSV once and append it if it is new.">Poll now</button>
+            <form method="post" action="/devices/{{ device.id }}/poll" data-action-feedback-form data-action-feedback-message="Collecting archived log from this device...">
+              <button class="button secondary" type="submit" title="Fetch the archived CSV once and append it if it is new.">Collect archive now</button>
             </form>
-            <form method="post" action="/devices/{{ device.id }}/live-snapshot">
-              <button class="button secondary" type="submit" title="Fetch the current live glycol_log.csv snapshot without appending it to the durable CSV.">Live snapshot</button>
+            <form method="post" action="/devices/{{ device.id }}/live-snapshot" data-action-feedback-form data-action-feedback-message="Collecting current data from this device...">
+              <button class="button secondary" type="submit" title="Fetch and save the device's current glycol data without adding it to the combined log.">Collect current data now</button>
             </form>
-            <a class="button secondary" href="/devices/{{ device.id }}/combined.csv" title="Download the long-term combined CSV for this device.">Combined CSV</a>
-            <button
-              class="button secondary"
-              type="button"
-              data-log-viewer-open
-              data-log-url="/api/devices/{{ device.id }}/logs/combined"
-              data-log-download="/devices/{{ device.id }}/combined.csv"
-              data-log-title="{{ device.name }} combined CSV"
-              title="View the latest rows from the long-term combined CSV."
-            >View combined</button>
-            <a class="button secondary" href="/devices/{{ device.id }}/latest-archive.csv" title="Download the most recently collected raw archive CSV.">Latest archive</a>
-            <button
-              class="button secondary"
-              type="button"
-              data-log-viewer-open
-              data-log-url="/api/devices/{{ device.id }}/logs/latest-archive"
-              data-log-download="/devices/{{ device.id }}/latest-archive.csv"
-              data-log-title="{{ device.name }} latest archive"
-              title="View the latest rows from the most recently collected raw archive CSV."
-            >View archive</button>
-            <a class="button secondary" href="/devices/{{ device.id }}/live.csv" title="Download the latest saved live snapshot CSV.">Live CSV</a>
-            <button
-              class="button secondary"
-              type="button"
-              data-log-viewer-open
-              data-log-url="/api/devices/{{ device.id }}/logs/live"
-              data-log-download="/devices/{{ device.id }}/live.csv"
-              data-log-title="{{ device.name }} live snapshot"
-              title="View the latest rows from the saved live snapshot CSV."
-            >View live</button>
+            <details class="action-menu">
+              <summary class="button secondary" title="Open combined log actions.">Combined log</summary>
+              <div class="action-menu-list">
+                <button
+                  type="button"
+                  data-log-viewer-open
+                  data-log-url="/api/devices/{{ device.id }}/logs/combined"
+                  data-log-download="/devices/{{ device.id }}/combined.csv"
+                  data-log-title="{{ device.name }} combined log"
+                  title="View the latest rows from the long-term combined log."
+                >View online</button>
+                <a href="/devices/{{ device.id }}/combined.csv" title="Download the long-term combined log as CSV.">Download CSV</a>
+              </div>
+            </details>
+            <details class="action-menu">
+              <summary class="button secondary" title="Open latest archive actions.">Latest archive</summary>
+              <div class="action-menu-list">
+                <button
+                  type="button"
+                  data-log-viewer-open
+                  data-log-url="/api/devices/{{ device.id }}/logs/latest-archive"
+                  data-log-download="/devices/{{ device.id }}/latest-archive.csv"
+                  data-log-title="{{ device.name }} latest archive"
+                  title="View the latest rows from the most recently collected raw archive."
+                >View online</button>
+                <a href="/devices/{{ device.id }}/latest-archive.csv" title="Download the most recently collected raw archive as CSV.">Download CSV</a>
+              </div>
+            </details>
+            <details class="action-menu">
+              <summary class="button secondary" title="Open current data actions.">Current data</summary>
+              <div class="action-menu-list">
+                <button
+                  type="button"
+                  data-log-viewer-open
+                  data-log-url="/api/devices/{{ device.id }}/logs/live"
+                  data-log-download="/devices/{{ device.id }}/live.csv"
+                  data-log-title="{{ device.name }} current data"
+                  title="View the latest saved current data from this device."
+                >View online</button>
+                <a href="/devices/{{ device.id }}/live.csv" title="Download the latest saved current data as CSV.">Download CSV</a>
+              </div>
+            </details>
             <form method="post" action="/devices/{{ device.id }}/delete" onsubmit="return confirm('Delete {{ device.name }}?');">
               <button class="button danger" type="submit" title="Delete this device configuration. Collected files are left on disk.">Delete</button>
             </form>

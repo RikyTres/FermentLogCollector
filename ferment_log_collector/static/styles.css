@@ -243,6 +243,37 @@ main {
   line-height: 1.5;
 }
 
+.flash,
+.action-feedback {
+  padding: 10px 12px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.flash {
+  margin-bottom: 18px;
+}
+
+.flash.success {
+  color: var(--ok);
+  background: #ecfdf3;
+  border: 1px solid #abefc6;
+}
+
+.flash.notice,
+.action-feedback.info {
+  color: #344054;
+  background: #f8f9fc;
+  border: 1px solid #d5d9eb;
+}
+
+.flash.error {
+  color: var(--danger);
+  background: #fef3f2;
+  border: 1px solid #fecdca;
+}
+
 .device {
   padding: 22px;
 }
@@ -447,7 +478,17 @@ select {
 .actions {
   display: flex;
   flex-wrap: wrap;
+  align-items: flex-start;
   gap: 10px;
+  margin-top: 16px;
+}
+
+.actions .action-menu-list {
+  right: auto;
+  left: 0;
+}
+
+.action-feedback {
   margin-top: 16px;
 }
 

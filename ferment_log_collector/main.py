@@ -67,6 +67,7 @@ async def index(request: Request):
             "logs_dir": str(storage.logs_root),
             "app_version": APP_VERSION,
             "static_asset_version": STATIC_ASSET_VERSION,
+            "flash": flash_from_request(request),
             "show_add_device": not devices,
         },
     )
@@ -130,7 +131,14 @@ async def poll_now(device_id: int):
     if device is None:
         raise HTTPException(status_code=404)
     await collector.poll_device(device)
-    return RedirectResponse("/", status_code=303)
+    _, status = device_with_status(device_id)
+    if status.last_error:
+        flash = "archive-error"
+    elif status.last_http_status == 404:
+        flash = "archive-missing"
+    else:
+        flash = "archive-complete"
+    return RedirectResponse(f"/?flash={flash}#device-{device_id}", status_code=303)
 
 
 @app.post("/devices/{device_id}/live-snapshot")
@@ -138,8 +146,9 @@ async def live_snapshot(device_id: int):
     device = db.get_device(device_id)
     if device is None:
         raise HTTPException(status_code=404)
-    await collector.fetch_live_snapshot(device)
-    return RedirectResponse("/", status_code=303)
+    succeeded, _ = await collector.fetch_live_snapshot(device)
+    flash = "live-complete" if succeeded else "live-error"
+    return RedirectResponse(f"/?flash={flash}#device-{device_id}", status_code=303)
 
 
 @app.get("/devices/{device_id}/combined.csv")
@@ -238,3 +247,36 @@ def normalize_slug(value: str) -> str:
     if not slug:
         raise HTTPException(status_code=400, detail="Slug cannot be empty")
     return slug
+
+
+def device_with_status(device_id: int):
+    match = next(((device, status) for device, status in db.list_devices_with_status() if device.id == device_id), None)
+    if match is None:
+        raise HTTPException(status_code=404)
+    return match
+
+
+def flash_from_request(request: Request) -> dict[str, str] | None:
+    messages = {
+        "archive-complete": {
+            "level": "success",
+            "message": "Archive collection completed. Device status has been refreshed.",
+        },
+        "archive-missing": {
+            "level": "notice",
+            "message": "Archive collection completed, but this device has no archived log available yet.",
+        },
+        "archive-error": {
+            "level": "error",
+            "message": "Archive collection failed. Review the device error below.",
+        },
+        "live-complete": {
+            "level": "success",
+            "message": "Current data saved. Device status has been refreshed.",
+        },
+        "live-error": {
+            "level": "error",
+            "message": "Current data collection failed. Review the device error below.",
+        },
+    }
+    return messages.get(request.query_params.get("flash", ""))

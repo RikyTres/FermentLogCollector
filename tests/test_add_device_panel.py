@@ -8,7 +8,7 @@ def render_index(*, show_add_device: bool) -> str:
     template_dir = Path(__file__).parent.parent / "ferment_log_collector" / "templates"
     environment = Environment(loader=FileSystemLoader(template_dir))
     return environment.get_template("index.html").render(
-        app_version="0.2.0",
+        app_version="0.3.0",
         devices=[],
         health_by_device={},
         data_dir="data",

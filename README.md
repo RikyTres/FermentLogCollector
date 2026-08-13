@@ -1,12 +1,26 @@
 # FermentLogCollector
 
-Small local FastAPI service that collects BrewPi-ESP glycol log archive segments.
+Small local FastAPI service that collects BrewPi-ESP glycol log archive segments
+and makes them available from a web dashboard.
 
 The collector polls each enabled device at `/glycol_log.archived.csv`, hashes the
 CSV with SHA-256, deduplicates already-seen archives, stores the raw archive, and
 appends only new data rows to a long per-device combined CSV.
 
 ![FermentLogCollector dashboard](docs/images/dashboard.jpg)
+
+## Features
+
+- Automatic archive collection for enabled devices, with configurable polling
+  intervals.
+- Manual collection of archived logs and current glycol data, with visible
+  progress and result feedback.
+- SHA-256 deduplication of archived segments and a long per-device combined CSV.
+- Online viewing and CSV download for the combined log, latest raw archive, and
+  current data.
+- Online viewing and download of the monthly FermentLogCollector audit log.
+
+![FermentLogCollector online log viewer](docs/images/log-viewer.jpg)
 
 ## Requirements
 
@@ -27,7 +41,7 @@ This keeps the application and its collected data in the current user's home
 directory:
 
 ```sh
-git clone --branch v0.2.0 --depth 1 https://github.com/RikyTres/FermentLogCollector.git
+git clone --branch v0.3.0 --depth 1 https://github.com/RikyTres/FermentLogCollector.git
 cd FermentLogCollector
 python3 -m venv .venv
 .venv/bin/python -m pip install -c requirements.lock .
@@ -45,7 +59,7 @@ root privileges, and stores persistent state under
 `/var/lib/fermentlogcollector/`.
 
 ```sh
-sudo git clone --branch v0.2.0 --depth 1 https://github.com/RikyTres/FermentLogCollector.git /opt/FermentLogCollector
+sudo git clone --branch v0.3.0 --depth 1 https://github.com/RikyTres/FermentLogCollector.git /opt/FermentLogCollector
 sudo python3 -m venv /opt/FermentLogCollector/.venv
 sudo /opt/FermentLogCollector/.venv/bin/python -m pip install -c /opt/FermentLogCollector/requirements.lock /opt/FermentLogCollector
 sudo install -m 0644 /opt/FermentLogCollector/deploy/fermentlogcollector.service /etc/systemd/system/fermentlogcollector.service
@@ -65,12 +79,12 @@ do not create a default device.
 
 ## Updating
 
-Updates remain pinned to an explicit release. The following example updates to
-a future `v0.2.1` release:
+Updates remain pinned to an explicit release. The following commands update an
+existing permanent installation to the current `v0.3.0` release:
 
 ```sh
-sudo git -C /opt/FermentLogCollector fetch --depth 1 origin tag v0.2.1
-sudo git -C /opt/FermentLogCollector checkout v0.2.1
+sudo git -C /opt/FermentLogCollector fetch --depth 1 origin tag v0.3.0
+sudo git -C /opt/FermentLogCollector checkout v0.3.0
 sudo /opt/FermentLogCollector/.venv/bin/python -m pip install -c /opt/FermentLogCollector/requirements.lock /opt/FermentLogCollector
 sudo systemctl restart fermentlogcollector
 ```
@@ -98,7 +112,10 @@ python3 -m venv .venv
   `logs/devices/fermenter-1/`.
 - HTTP 404 from `/glycol_log.archived.csv` is treated as a normal "no archive
   yet" state.
-- `/glycol_log.csv` can be fetched on demand as a live snapshot from the UI.
+- `/glycol_log.csv` can be collected on demand as current data. It is saved
+  separately and is never appended to the durable combined CSV.
+- Combined logs, latest archives, current data, and audit logs can be viewed
+  online or downloaded from the dashboard.
 - Audit logs are plain text and rotate monthly under `logs/collector/`.
 - This repository is only the remote collector. It does not include firmware
   changes.
