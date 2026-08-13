@@ -177,7 +177,7 @@ async def download_current_audit():
     return FileResponse(path, media_type="text/plain", filename=path.name)
 
 
-@app.api_route("/favicon.ico", methods=["GET", "HEAD"])
+@app.get("/favicon.ico", include_in_schema=False)
 async def favicon():
     return FileResponse(BASE_DIR / "static" / "favicon.png", media_type="image/png")
 
