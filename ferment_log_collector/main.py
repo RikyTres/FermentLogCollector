@@ -21,6 +21,12 @@ from .version import app_version
 
 BASE_DIR = Path(__file__).resolve().parent
 APP_VERSION = app_version()
+STATIC_ASSET_VERSION = str(
+    max(
+        (BASE_DIR / "static" / "styles.css").stat().st_mtime_ns,
+        (BASE_DIR / "static" / "app.js").stat().st_mtime_ns,
+    )
+)
 template_env = Environment(
     loader=FileSystemLoader(str(BASE_DIR / "templates")),
     autoescape=select_autoescape(["html", "xml"]),
@@ -60,6 +66,7 @@ async def index(request: Request):
             "data_dir": str(data_dir()),
             "logs_dir": str(storage.logs_root),
             "app_version": APP_VERSION,
+            "static_asset_version": STATIC_ASSET_VERSION,
             "show_add_device": not devices,
         },
     )

@@ -6,7 +6,7 @@
     <title>FermentLogCollector</title>
     <link rel="icon" href="/static/favicon.png" type="image/png">
     <link rel="apple-touch-icon" href="/static/apple-touch-icon.png">
-    <link rel="stylesheet" href="/static/styles.css">
+    <link rel="stylesheet" href="/static/styles.css?v={{ static_asset_version }}">
   </head>
   <body>
     <header class="topbar">
@@ -240,6 +240,6 @@
         Runtime data: {{ data_dir }} · Logs: {{ logs_dir }}
       </footer>
     </main>
-    <script src="/static/app.js"></script>
+    <script src="/static/app.js?v={{ static_asset_version }}"></script>
   </body>
 </html>

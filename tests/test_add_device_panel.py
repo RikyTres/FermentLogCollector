@@ -14,6 +14,7 @@ def render_index(*, show_add_device: bool) -> str:
         data_dir="data",
         logs_dir="logs",
         show_add_device=show_add_device,
+        static_asset_version="test-assets",
     )
 
 
