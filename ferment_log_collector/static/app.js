@@ -179,6 +179,7 @@ function attachLogViewer() {
       currentUrl = button.dataset.logUrl || "";
       title.textContent = button.dataset.logTitle || "Log viewer";
       downloadLink.href = button.dataset.logDownload || "#";
+      button.closest("details")?.removeAttribute("open");
       viewer.hidden = false;
       viewer.scrollIntoView({ block: "start", behavior: "smooth" });
       loadPreview();
