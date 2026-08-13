@@ -4,8 +4,8 @@ Small local FastAPI service that collects BrewPi-ESP glycol log archive segments
 and makes them available from a web dashboard.
 
 The collector polls each enabled device at `/glycol_log.archived.csv`, hashes the
-CSV with SHA-256, deduplicates already-seen archives, stores the raw archive, and
-appends only new data rows to a long per-device combined CSV.
+CSV with SHA-256, skips already-seen archives, stores each previously unseen raw
+archive, and appends its data rows to a long per-device combined CSV.
 
 ![FermentLogCollector dashboard](docs/images/dashboard.jpg)
 
